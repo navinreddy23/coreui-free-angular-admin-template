@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { ChartData } from 'chart.js';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
 import { RowComponent, ColComponent, TextColorDirective, CardComponent, CardHeaderComponent, CardBodyComponent } from '@coreui/angular';
 import { DocsCalloutComponent } from '@docs-components/public-api';
+import {Events} from "@wailsio/runtime";
+import {signal} from "@angular/core";
 
 @Component({
     selector: 'app-charts',
@@ -10,7 +12,22 @@ import { DocsCalloutComponent } from '@docs-components/public-api';
     styleUrls: ['./charts.component.scss'],
     imports: [RowComponent, ColComponent, DocsCalloutComponent, TextColorDirective, CardComponent, CardHeaderComponent, CardBodyComponent, ChartjsComponent]
 })
-export class ChartsComponent {
+export class ChartsComponent implements OnInit{
+  ngOnInit(): void {
+    Events.On ("time-charts", (emitted: any) => {
+      console.log("Emitted in Charts component, ", emitted)
+      this.chartBarData.set({
+        labels: [...this.months].slice(0, 7),
+        datasets: [
+          {
+            label: 'GitHub Commits',
+            backgroundColor: '#f87979',
+            data: [this.randomData, 20, 12, 39, 17, 42, 79]
+          }
+        ]
+      });
+    })
+  }
 
   options = {
     maintainAspectRatio: false
@@ -18,7 +35,7 @@ export class ChartsComponent {
 
   months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  chartBarData: ChartData = {
+  chartBarData = signal<ChartData> ({
     labels: [...this.months].slice(0, 7),
     datasets: [
       {
@@ -27,7 +44,7 @@ export class ChartsComponent {
         data: [40, 20, 12, 39, 17, 42, 79]
       }
     ]
-  };
+  });
 
   // chartBarOptions = {
   //   maintainAspectRatio: false,
